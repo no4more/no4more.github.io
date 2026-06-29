@@ -3,40 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <title>no4more の思考ログ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* 全体のリセットと基本設定 */
+        * { box-sizing: border-box; }
         body {
-            max-width: 700px;
-            margin: 40px auto;
-            padding: 0 20px;
-            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
             color: #1e293b;
             line-height: 1.8;
             background-color: #fafafa;
+            display: flex;
+            min-height: 100vh;
         }
-        h1 { font-size: 1.8rem; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 20px 0; }
-        /* リンクのデザイン */
-        a { color: #2563eb; text-decoration: none; font-weight: bold; font-size: 1.1rem; }
-        a:hover { text-decoration: underline; }
-        footer { margin-top: 60px; font-size: 0.9rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+
+        /* --- 左側（サイドバー）のデザイン --- */
+        .sidebar {
+            width: 280px;
+            background-color: #f1f5f9;
+            padding: 40px 30px;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* スクロールしてもサイドバーを固定したい場合は以下を有効化 */
+            /* position: sticky; top: 0; height: 100vh; overflow-y: auto; */
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 0;
+            line-height: 1.5;
+        }
+
+        .sidebar-menu h3 {
+            font-size: 1.1rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #334155;
+        }
+
+        .sidebar-menu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu a {
+            color: #475569;
+            text-decoration: none;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu a:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        /* 選択中のカテゴリをハイライト */
+        .sidebar-menu a.active {
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        /* フッター */
+        footer {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 40px;
+        }
+
+        /* --- 右側（メインコンテンツ）のデザイン --- */
+        .main-content {
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content h2 {
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .article-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .article-list li {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .article-list a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .article-list a:hover {
+            text-decoration: underline;
+        }
+        
+        .article-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background-color: #e2e8f0;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+        }
+
+        /* 記事を表示するための iframe */
+        #article-frame {
+            width: 100%;
+            height: 100vh; /* 高さを画面いっぱいに */
+            border: none;
+            flex: 1;
+        }
+
+        /* --- スマートフォン対応 --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 20px; }
+            .main-content { padding: 30px 20px; }
+            #article-frame { height: 80vh; }
+        }
     </style>
 </head>
 <body>
 
-    <h1>no4more の個人発信スペース</h1>
-    <p>アルゴリズムに依存せず、独自の文脈で思考を記録する場所です。</p>
+    <!-- 左側（サイドバー） -->
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header" onclick="showCategory('すべての記事')">
+                <h1>no4more</h1>
+                <p>アルゴリズムに依存せず、<br>独自の文脈で思考を記録する場所。</p>
+            </div>
 
-    <h2>記事一覧</h2>
-    <ul>
-        <li>
-            <a href="essay1.html">第一論：均質化の罠と真の効率性──AGI時代における「個の表現」</a>
-        </li>
-    </ul>
+            <!-- JavaScriptで自動生成されるアーカイブメニュー -->
+            <div class="sidebar-menu" id="category-menu">
+                <!-- ここにカテゴリ一覧が自動挿入されます -->
+            </div>
+        </div>
 
-    <footer>
-        &copy; 2026 no4more
-    </footer>
+        <footer>
+            &copy; 2026 no4more<br>
+            Hosted on GitHub Pages.
+        </footer>
+    </div>
 
+    <!-- 右側（メインコンテンツ） -->
+    <div class="main-content" id="main-content">
+        <!-- JavaScriptでここに「記事一覧」または「記事本文(iframe)」が自動挿入されます -->
+    </div>
+
+    <script>
+        // ==========================================
+        // 記事の目録データ（新しい記事を書いたらここに追加します）
+        // ==========================================
+        const articles = [
+            {
+                title: "第一論：均質化の罠と真の効率性──AGI時代における「個の表現」",
+                url: "essay1.html",
+                category: "テクノロジーと社会",
+                date: "2026.06.29"
+            }
+            // 新しい記事を追加する例：
+            // ,{
+            //     title: "第二論：独自の文脈をどう育てるか",
+            //     url: "essay2.html",
+            //     category: "哲学・思想",
+            //     date: "2026.07.05"
+            // }
+        ];
+
+        // ==========================================
+        // 内部の処理ロジック
+        // ==========================================
+
+        // 1. カテゴリ一覧を自動抽出してサイドバーを生成する
+        function renderSidebar() {
+            const menuContainer = document.getElementById('category-menu');
+            // 記事データから重複しないカテゴリを抽出
+            const categories = ["すべての記事", ...new Set(articles.map(a => a.category))];
+            
+            let html = '<h3>Archives</h3><ul id="category-list">';
+            categories.forEach(cat => {
+                html += `<li><a onclick="showCategory('${cat}')" data-category="${cat}">${cat}</a></li>`;
+            });
+            html += '</ul>';
+            menuContainer.innerHTML = html;
+        }
+
+        // 2. 指定されたカテゴリの記事一覧をメイン領域に表示する
+        function showCategory(selectedCategory) {
+            const mainContent = document.getElementById('main-content');
+            
+            // サイドバーのハイライトを更新
+            document.querySelectorAll('#category-list a').forEach(a => {
+                a.classList.remove('active');
+                if(a.getAttribute('data-category') === selectedCategory) {
+                    a.classList.add('active');
+                }
+            });
+
+            // 記事をフィルタリング
+            let filteredArticles = articles;
+            let displayTitle = "すべての記事";
+            if (selectedCategory !== "すべての記事") {
+                filteredArticles = articles.filter(a => a.category === selectedCategory);
+                displayTitle = `カテゴリ: ${selectedCategory}`;
+            }
+
+            // 記事一覧のHTMLを生成
+            let html = `<h2>${displayTitle}</h2><ul class="article-list">`;
+            filteredArticles.forEach(a => {
+                html += `
+                    <li>
+                        <a onclick="showArticle('${a.url}')">${a.title}</a>
+                        <div class="article-meta">
+                            ${a.date} <span class="category-tag">${a.category}</span>
+                        </div>
+                    </li>
+                `;
+            });
+            html += `</ul>`;
+            
+            mainContent.innerHTML = html;
+        }
+
+        // 3. 指定された記事ファイル(HTML)を iframe でメイン領域に表示する
+        function showArticle(url) {
+            const mainContent = document.getElementById('main-content');
+            
+            // サイドバーのハイライトをすべて消す（記事閲覧中のため）
+            document.querySelectorAll('#category-list a').forEach(a => {
+                a.classList.remove('active');
+            });
+
+            // iframeを生成して読み込む
+            mainContent.innerHTML = `
+                <iframe id="article-frame" src="${url}"></iframe>
+            `;
+        }
+
+        // ==========================================
+        // 初期化処理（ページを読み込んだときに実行）
+        // ==========================================
+        renderSidebar();           // サイドバーを作る
+        showCategory('すべての記事'); // 最初はすべての記事一覧を表示する
+    </script>
 </body>
 </html>
